@@ -48,8 +48,8 @@ final class HttpApi[F[_]: Concurrent: Timer] private (
 
   // Open routes
   //private val healthRoutes   = new HealthRoutes[F](algebras.healthCheck).routes
-  private val brandRoutes = new BrandRoutes[F](algebras.brands).routes
-  //private val categoryRoutes = new CategoryRoutes[F](algebras.categories).routes
+  private val brandRoutes    = new BrandRoutes[F](algebras.brands).routes
+  private val categoryRoutes = new CategoryRoutes[F](algebras.categories).routes
   //private val itemRoutes     = new ItemRoutes[F](algebras.items).routes
 
   // Secured routes
@@ -65,7 +65,7 @@ final class HttpApi[F[_]: Concurrent: Timer] private (
 
   // Combining all the http routes
   private val openRoutes: HttpRoutes[F] =
-    loginRoutes <+> userRoutes <+> logoutRoutes <+> brandRoutes
+    loginRoutes <+> userRoutes <+> logoutRoutes <+> brandRoutes <+> categoryRoutes
 
   //private val adminRoutes: HttpRoutes[F] =
   //adminItemRoutes <+> adminBrandRoutes <+> adminCategoryRoutes

@@ -13,9 +13,11 @@ object Algebras {
   ): F[Algebras[F]] =
     for {
       brands <- LiveBrands.make[F](sessionPool)
-    } yield new Algebras[F](brands)
+      categories <- LiveCategories.make[F](sessionPool)
+    } yield new Algebras[F](brands, categories)
 }
 
 final class Algebras[F[_]] private (
-    val brands: Brands[F]
+    val brands: Brands[F],
+    val categories: Categories[F]
 ) {}

@@ -12,6 +12,7 @@ import io.estatico.newtype.Coercible
 import io.estatico.newtype.ops._
 import org.http4s.{ EntityDecoder, EntityEncoder }
 import org.http4s.circe.{ jsonEncoderOf, jsonOf }
+import relay.domain.category.Category
 
 object json {
   implicit def jsonDecoder[F[_]: Sync, A: Decoder]: EntityDecoder[F, A] = jsonOf[F, A]
@@ -41,4 +42,8 @@ object json {
 
   implicit val brandDecoder: Decoder[Brand] = deriveDecoder[Brand]
   implicit val brandEncoder: Encoder[Brand] = deriveEncoder[Brand]
+
+  implicit val categoryDecoder: Decoder[Category] = deriveDecoder[Category]
+  implicit val categoryEncoder: Encoder[Category] = deriveEncoder[Category]
+
 }
