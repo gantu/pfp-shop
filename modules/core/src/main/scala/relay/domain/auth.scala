@@ -6,6 +6,7 @@ import java.util.UUID
 import javax.crypto.Cipher
 import scala.util.control.NoStackTrace
 import dev.profunktor.auth.jwt._
+import io.circe.Decoder
 
 object auth {
   @newtype case class UserId(value: UUID)
@@ -40,6 +41,12 @@ object auth {
       username: UserNameParam,
       password: PassworParam
   )
+
+  @newtype case class ClaimContent(uuid: UUID)
+
+  object ClaimContent {
+    implicit val jsonDecoder: Decoder[ClaimContent] = Decoder.forProduct1("uuid")(ClaimContent.apply)
+  }
 
   case class UserNameInUse(username: UserName) extends NoStackTrace
   case class InvalidUserOrPassword(username: UserName) extends NoStackTrace

@@ -8,8 +8,9 @@ import pdi.jwt._
 import relay.algebras._
 import relay.config.data._
 import relay.domain.auth._
-import relay.effects.GenUUID
+import io.circe.parser.{ decode => jsonDecode }
 import skunk.Session
+import relay.effects.`package`.AppThrow
 
 object Security {
   def make[F[_]: Sync](
@@ -40,9 +41,8 @@ object Security {
 
     for {
       adminClaim <- jwtDecode[F](adminToken, adminJwtAuth.value)
-      content = adminClaim.content.replace("{", "0").replace("}", "c")
-      adminId <- GenUUID[F].read[UserId](content)
-      adminUser = AdminUser(User(adminId, UserName("admin")))
+      content <- AppThrow[F].fromEither(jsonDecode[ClaimContent](adminClaim.content))
+      adminUser = AdminUser(User(UserId(content.uuid), UserName("admin")))
       tokens <- LiveTokens.make[F](cfg.tokenConfig, cfg.tokenExpiration)
       crypto <- LiveCrypto.make[F](cfg.passwordSalt)
       users <- LiveUsers.make[F](sessionPool, crypto)
