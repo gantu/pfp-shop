@@ -49,7 +49,7 @@ private object BrandQueries {
   val selectAll: Query[Void, Brand] =
     sql""" 
             SELECT * FROM brands
-        """".query(codec)
+        """.query(codec)
 
   val insertBrand: Command[Brand] =
     sql"""
