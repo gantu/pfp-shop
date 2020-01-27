@@ -13,7 +13,7 @@ import scala.concurrent.duration._
 import relay.domain.auth._
 import relay.http.routes.auth._
 import relay.http.routes._
-//import relay.http.routes.admin._
+import relay.http.routes.admin.AdminBrandRoutes
 //import relay.http.routes.secured._
 
 object HttpApi {
@@ -33,12 +33,12 @@ final class HttpApi[F[_]: Concurrent: Timer] private (
     algebras: Algebras[F],
     security: Security[F]
 ) {
-  //private val adminAuth: JwtToken => JwtClaim => F[Option[AdminUser]] =
-  //t => c => security.adminAuth.findUser(t)(c)
+  private val adminAuth: JwtToken => JwtClaim => F[Option[AdminUser]] =
+    t => c => security.adminAuth.findUser(t)(c)
   private val usersAuth: JwtToken => JwtClaim => F[Option[CommonUser]] =
     t => c => security.usersAuth.findUser(t)(c)
 
-  //private val adminMiddleware = JwtAuthMiddleware[F, AdminUser](security.adminJwtAuth.value, adminAuth)
+  private val adminMiddleware = JwtAuthMiddleware[F, AdminUser](security.adminJwtAuth.value, adminAuth)
   private val usersMiddleware = JwtAuthMiddleware[F, CommonUser](security.userJwtAuth.value, usersAuth)
 
   // Auth routes
@@ -59,7 +59,7 @@ final class HttpApi[F[_]: Concurrent: Timer] private (
 
   // Admin routes
   // private val adminUserRoutes = new AdminUserRoutes[F](security.users).routes(adminMiddleware)
-  //private val adminBrandRoutes    = new AdminBrandRoutes[F](algebras.brands).routes(adminMiddleware)
+  private val adminBrandRoutes = new AdminBrandRoutes[F](algebras.brands).routes(adminMiddleware)
   //private val adminCategoryRoutes = new AdminCategoryRoutes[F](algebras.categories).routes(adminMiddleware)
   //private val adminItemRoutes     = new AdminItemRoutes[F](algebras.items).routes(adminMiddleware)
 
@@ -67,11 +67,12 @@ final class HttpApi[F[_]: Concurrent: Timer] private (
   private val openRoutes: HttpRoutes[F] =
     loginRoutes <+> userRoutes <+> logoutRoutes <+> brandRoutes <+> categoryRoutes
 
-  //private val adminRoutes: HttpRoutes[F] =
+  private val adminRoutes: HttpRoutes[F] = adminBrandRoutes
   //adminItemRoutes <+> adminBrandRoutes <+> adminCategoryRoutes
 
   private val routes: HttpRoutes[F] = Router(
-    version.v1 -> openRoutes
+    version.v1 -> openRoutes,
+    version.v1 + "/admin" -> adminRoutes
   )
 
   private val middleware: HttpRoutes[F] => HttpRoutes[F] = {
